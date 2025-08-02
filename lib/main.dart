@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:playground/src/features/todo/presentation/cubit/todo_cubit.dart';
 import 'package:playground/src/features/todo/presentation/pages/todo_page.dart';
+import 'package:playground/src/injection_container.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await InjectionContainer().init();
   runApp(const App());
 }
 
@@ -15,7 +20,10 @@ class App extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: const TodoPage(),
+      home: BlocProvider(
+        create: (_) => InjectionContainer().sl<TodoCubit>(),
+        child: TodoPage(),
+      ),
     );
   }
 }
