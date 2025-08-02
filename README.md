@@ -1,16 +1,11 @@
-# playground
+# Flutter Playground
 
-A new Flutter project.
+This project is for studies and demonstration of knowledge involving Dart/Flutter, and each branch separates what was used, more details below.
 
-## Getting Started
+## Main
 
-This project is a starting point for a Flutter application.
+Initial structure.
 
-A few resources to get you started if this is your first Flutter project:
+## bloc-cubit
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Use of sharedPreferences for offline persistence, bloc-cubit and state pattern for state management, getit for dependency injection and clean architecture for organizing folders and files.
