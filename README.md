@@ -14,4 +14,8 @@ Use of sharedPreferences for offline persistence, bloc-cubit and state pattern f
 
 Added some unit tests with mocktail.
 
+## mockito
+
+Added some unit tests with mockito.
+
 
