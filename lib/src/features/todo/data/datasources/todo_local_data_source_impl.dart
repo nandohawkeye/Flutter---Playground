@@ -19,6 +19,10 @@ class TodoLocalDataSourceImpl implements ITodoLocalDatasource {
   @override
   Future<void> saveTodos(List<TodoModel> todos) async {
     final json = TodoModel.toJsonList(todos);
-    await prefs.setString(key, json);
+    final success = await prefs.setString(key, json);
+
+    if (!success) {
+      throw Exception('data unsaved');
+    }
   }
 }

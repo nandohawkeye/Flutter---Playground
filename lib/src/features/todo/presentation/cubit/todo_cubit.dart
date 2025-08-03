@@ -6,32 +6,53 @@ import 'todo_state.dart';
 class TodoCubit extends Cubit<TodoState> {
   final ITodoRepository repository;
 
-  TodoCubit(this.repository) : super(const TodoState([])) {
+  TodoCubit(this.repository) : super(const TodoLoading()) {
     loadTodos();
   }
 
   Future<void> loadTodos() async {
-    final todos = await repository.getTodos();
-    emit(TodoState(todos));
+    try {
+      final todos = await repository.getTodos();
+      emit(TodoSuccess(todos));
+    } catch (e) {
+      emit(TodoFailure('Não foi possível buscar as tarefas', []));
+    }
   }
 
   Future<void> addTodo(String title) async {
-    final newList = List<Todo>.from(state.todos)..add(Todo(title: title));
-    await repository.saveTodos(newList);
-    emit(TodoState(newList));
+    final oldTodos = (state as TodoSuccess).todos;
+    try {
+      final newList = List<Todo>.from((state as TodoSuccess).todos)
+        ..add(Todo(title: title));
+      await repository.saveTodos(newList);
+      emit(TodoSuccess(newList));
+    } catch (e) {
+      emit(TodoFailure('Não foi possível adicionar a tarefa', oldTodos));
+    }
   }
 
   Future<void> toggleTodo(int index) async {
-    final updated = state.todos[index];
-    final newList = List<Todo>.from(state.todos)
-      ..[index] = Todo(title: updated.title, isDone: !updated.isDone);
-    await repository.saveTodos(newList);
-    emit(TodoState(newList));
+    final oldTodos = (state as TodoSuccess).todos;
+    try {
+      final updated = (state as TodoSuccess).todos[index];
+      final newList = List<Todo>.from((state as TodoSuccess).todos)
+        ..[index] = Todo(title: updated.title, isDone: !updated.isDone);
+      await repository.saveTodos(newList);
+      emit(TodoSuccess(newList));
+    } catch (e) {
+      emit(TodoFailure('Não foi possível salvar a tarefa', oldTodos));
+    }
   }
 
   Future<void> removeTodo(int index) async {
-    final newList = List<Todo>.from(state.todos)..removeAt(index);
-    await repository.saveTodos(newList);
-    emit(TodoState(newList));
+    final oldTodos = (state as TodoSuccess).todos;
+    try {
+      final newList = List<Todo>.from((state as TodoSuccess).todos)
+        ..removeAt(index);
+      await repository.saveTodos(newList);
+      emit(TodoSuccess(newList));
+    } catch (e) {
+      emit(TodoFailure('Não foi possível remover a tarefa', oldTodos));
+    }
   }
 }

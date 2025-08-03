@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:playground/src/features/todo/domain/entities/todo.dart';
 
 import '../cubit/todo_cubit.dart';
 import '../cubit/todo_state.dart';
@@ -58,41 +59,89 @@ class _TodoPageState extends State<TodoPage> {
           Expanded(
             child: BlocBuilder<TodoCubit, TodoState>(
               builder: (_, state) {
-                if (state.todos.isEmpty) {
-                  return const Center(child: Text('Nenhuma tarefa ainda'));
+                if (state is TodoLoading) {
+                  return Center(child: CircularProgressIndicator());
                 }
-                return ListView.builder(
-                  itemCount: state.todos.length,
-                  itemBuilder: (_, i) {
-                    final todo = state.todos[i];
-                    return ListTile(
-                      title: Text(
-                        todo.title,
-                        style: TextStyle(
-                          decoration: todo.isDone
-                              ? TextDecoration.lineThrough
-                              : null,
-                        ),
-                      ),
-                      leading: Checkbox(
-                        value: todo.isDone,
-                        onChanged: (_) {
-                          context.read<TodoCubit>().toggleTodo(i);
-                        },
-                      ),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () {
-                          context.read<TodoCubit>().removeTodo(i);
-                        },
-                      ),
-                    );
-                  },
-                );
+
+                if (state is TodoFailure) {
+                  return state.previousTodos.isEmpty
+                      ? Center(
+                          child: Text(
+                            state.message,
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        )
+                      : Column(
+                          children: [
+                            Text(state.message),
+                            Expanded(
+                              child: _TodoList(todos: state.previousTodos),
+                            ),
+                          ],
+                        );
+                }
+
+                if (state is TodoSuccess) {
+                  if (state.todos.isEmpty) {
+                    return const Center(child: Text('Nenhuma tarefa ainda'));
+                  }
+
+                  return _TodoList(todos: state.todos);
+                }
+
+                return const SizedBox.shrink();
               },
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _TodoList extends StatelessWidget {
+  const _TodoList({required this.todos});
+
+  final List<Todo> todos;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: todos.length,
+      itemBuilder: (_, index) {
+        final todo = todos[index];
+        return _TodoTile(todo: todo, index: index);
+      },
+    );
+  }
+}
+
+class _TodoTile extends StatelessWidget {
+  const _TodoTile({required this.todo, required this.index});
+
+  final Todo todo;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(
+        todo.title,
+        style: TextStyle(
+          decoration: todo.isDone ? TextDecoration.lineThrough : null,
+        ),
+      ),
+      leading: Checkbox(
+        value: todo.isDone,
+        onChanged: (_) {
+          context.read<TodoCubit>().toggleTodo(index);
+        },
+      ),
+      trailing: IconButton(
+        icon: const Icon(Icons.delete),
+        onPressed: () {
+          context.read<TodoCubit>().removeTodo(index);
+        },
       ),
     );
   }
