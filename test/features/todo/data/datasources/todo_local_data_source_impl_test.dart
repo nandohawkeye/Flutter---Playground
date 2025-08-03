@@ -1,13 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:playground/src/features/todo/data/datasources/todo_local_data_source_impl.dart';
 import 'package:playground/src/features/todo/data/models/todo_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MockSharedPreferences extends Mock implements SharedPreferences {}
+import 'todo_local_data_source_impl_test.mocks.dart';
 
+@GenerateMocks([SharedPreferences])
 void main() {
   late TodoLocalDataSourceImpl datasource;
   late MockSharedPreferences mockPrefs;
@@ -27,9 +29,7 @@ void main() {
     final todos = [TodoModel(title: 'Test', isDone: false)];
 
     final expectedJson = jsonEncode(todos.map((e) => e.toMap()).toList());
-    when(
-      mockPrefs.setString(todosKey, expectedJson),
-    ).thenAnswer((_) async => true);
+    when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
 
     await datasource.saveTodos(todos);
 
@@ -64,9 +64,9 @@ void main() {
     expect(() => datasource.getTodos(), throwsA(isA<FormatException>()));
   });
 
-  test('Should throw an exception if setString returns false', () async {
-    when(mockPrefs.setString(todosKey, '')).thenAnswer((_) async => false);
+  test('Should throw an exception if setString returns false ', () async {
+    when(mockPrefs.setString(any, any)).thenAnswer((_) async => false);
 
-    expect(() => datasource.saveTodos(todoList), throwsException);
+    await expectLater(() => datasource.saveTodos(todoList), throwsException);
   });
 }
