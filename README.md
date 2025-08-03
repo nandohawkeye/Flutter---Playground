@@ -9,3 +9,9 @@ Initial structure.
 ## bloc-cubit
 
 Use of sharedPreferences for offline persistence, bloc-cubit and state pattern for state management, getit for dependency injection and clean architecture for organizing folders and files.
+
+## mocktail
+
+Added some unit tests with mocktail.
+
+
