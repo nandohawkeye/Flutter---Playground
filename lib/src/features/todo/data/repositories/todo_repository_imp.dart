@@ -1,10 +1,10 @@
-import 'package:playground/src/features/todo/data/datasources/todo_local_data_source.dart';
+import 'package:playground/src/features/todo/data/datasources/todo_local_data_source_impl.dart';
 import 'package:playground/src/features/todo/data/models/todo_model.dart';
 import 'package:playground/src/features/todo/domain/entities/todo.dart';
 import 'package:playground/src/features/todo/domain/repositories/i_todo_repository.dart';
 
 class TodoRepositoryImpl implements ITodoRepository {
-  final TodoLocalDataSource local;
+  final TodoLocalDataSourceImpl local;
 
   TodoRepositoryImpl(this.local);
 
