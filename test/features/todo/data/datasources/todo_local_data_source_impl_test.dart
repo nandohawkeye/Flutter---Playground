@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:mockito/mockito.dart';
 import 'package:playground/src/features/todo/data/datasources/todo_local_data_source_impl.dart';
 import 'package:playground/src/features/todo/data/models/todo_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,15 +24,16 @@ void main() {
   ];
 
   test('should save everyone\'s list in SharedPreferences', () async {
-    final todos = [TodoModel(title: 'test', isDone: false)];
+    final todos = [TodoModel(title: 'Test', isDone: false)];
 
-    when(() => mockPrefs.setString(any(), any())).thenAnswer((_) async => true);
+    final expectedJson = jsonEncode(todos.map((e) => e.toMap()).toList());
+    when(
+      mockPrefs.setString(todosKey, expectedJson),
+    ).thenAnswer((_) async => true);
 
     await datasource.saveTodos(todos);
 
-    final expectedJson = jsonEncode(todos.map((e) => e.toMap()).toList());
-
-    verify(() => mockPrefs.setString(todosKey, expectedJson)).called(1);
+    verify(mockPrefs.setString(todosKey, expectedJson)).called(1);
   });
 
   test('should return list of all Todos in SharedPreferences', () async {
@@ -41,7 +42,7 @@ void main() {
     ];
     final jsonString = jsonEncode(todosMap);
 
-    when(() => mockPrefs.getString(todosKey)).thenReturn(jsonString);
+    when(mockPrefs.getString(todosKey)).thenReturn(jsonString);
 
     final result = await datasource.getTodos();
 
@@ -50,7 +51,7 @@ void main() {
   });
 
   test('should return empty list if there is no data', () async {
-    when(() => mockPrefs.getString(todosKey)).thenReturn(null);
+    when(mockPrefs.getString(todosKey)).thenReturn(null);
 
     final result = await datasource.getTodos();
 
@@ -58,15 +59,13 @@ void main() {
   });
 
   test('Should throw exception when invalid JSON is returned', () async {
-    when(() => mockPrefs.getString(todosKey)).thenReturn('string inválida');
+    when(mockPrefs.getString(todosKey)).thenReturn('string inválida');
 
     expect(() => datasource.getTodos(), throwsA(isA<FormatException>()));
   });
 
   test('Should throw an exception if setString returns false', () async {
-    when(
-      () => mockPrefs.setString(todosKey, any()),
-    ).thenAnswer((_) async => false);
+    when(mockPrefs.setString(todosKey, '')).thenAnswer((_) async => false);
 
     expect(() => datasource.saveTodos(todoList), throwsException);
   });
