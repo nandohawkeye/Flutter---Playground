@@ -1,0 +1,69 @@
+name: Flutter CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - mockito
+      - CI-CD
+    tags:
+      - 'v*.*.*'   
+  pull_request:
+    branches:
+      - main
+      - mockito
+      - CI-CD
+
+jobs:
+  tests:
+    if: github.event_name != 'push' || !startsWith(github.ref, 'refs/tags/')
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Gerar arquivos com build_runner
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Rodar testes
+        run: flutter test
+
+  build:
+    if: startsWith(github.ref, 'refs/tags/')
+    name: Build APK on Tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.1'
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Gerar arquivos com build_runner
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Gerar APK com dart-defines
+        run: |
+          flutter build apk --release --verbose
+
+      - name: Upload do APK como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-${{ github.ref_name }}
+          path: build/app/outputs/flutter-apk/app-release.apk
