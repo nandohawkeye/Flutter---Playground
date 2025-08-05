@@ -18,4 +18,8 @@ Added some unit tests with mocktail.
 
 Added some unit tests with mockito.
 
+## CI-CD
+
+Added CI/CD to Github actions to automate routines like unit testing and Android deployment by performing pushes, pull requests, and version tagging.
+
 
