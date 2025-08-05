@@ -145,3 +145,4 @@ lib/schema.graphql
 app.*.map.json
 
 
+coverage/
